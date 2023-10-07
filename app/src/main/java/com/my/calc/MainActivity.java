@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String secondNum = ""; // 数字二
     private String result = ""; // 计算结果
     private String showResult = ""; // 显示内容
-
+    private int dot = 0;
     public MainActivity() {
     }
 
@@ -102,6 +102,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 secondNum = secondNum + inputText;
             }
+            if (inputText.equals(".")) {
+                if (dot == 0) {
+                    refreshText(showResult + inputText);
+                    dot = 1;
+                }
+            }
             if (showResult.equals("0") && !inputText.equals(".")) {
                 refreshText(inputText);
             } else {
@@ -138,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void refreshOperate(String newResult) {
         result = newResult;
         firstNum = result;
+        result = "";
         secondNum = "";
         operator = "";
     } // 刷新操作数与操作符 并把运算结果给result

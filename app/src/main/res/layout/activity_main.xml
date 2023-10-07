@@ -20,7 +20,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingTop="10dp"
-                android:paddingBottom="10dp"
+                android:paddingBottom="0dp"
                 android:background="@color/gray"
                 android:text="@string/calc_name"
                 android:textColor="@color/black"

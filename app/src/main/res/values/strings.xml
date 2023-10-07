@@ -19,6 +19,6 @@
     <string name="clear">C</string>
     <string name="equal">=</string>
     <string name="dot">.</string>
-    <string name="sqrt">√</string>
+    <string name="sqrt">√x</string>
     <string name="reciprocal">1/x</string>
 </resources>
