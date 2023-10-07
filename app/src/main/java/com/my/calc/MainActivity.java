@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView textResult; // （文本）显示内容
@@ -15,6 +17,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String result = ""; // 计算结果
     private String showResult = ""; // 显示内容
     private int dot = 0;
+
     public MainActivity() {
     }
 
@@ -51,43 +54,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         String inputText = ((TextView) view).getText().toString();
+
         if (view.getId() == R.id.bt_clear) {
             clear();
-        } else if (view.getId() == R.id.bt_add) {
-            operator = inputText;
-            refreshText(showResult + operator);
-        } else if (view.getId() == R.id.bt_minus) {
-            operator = inputText;
-            refreshText(showResult + operator);
-        } else if (view.getId() == R.id.bt_multiply) {
-            operator = inputText;
-            refreshText(showResult + operator);
-        } else if (view.getId() == R.id.bt_divide) {
-            operator = inputText;
-            refreshText(showResult + operator);
+        } else if (view.getId() == R.id.bt_add || view.getId() == R.id.bt_minus || view.getId() == R.id.bt_multiply || view.getId() == R.id.bt_divide) {
+            if (operator.equals("")) {
+                operator = inputText;
+                dot = 0;
+                refreshText(showResult + operator);
+            }
         } else if (view.getId() == R.id.bt_equal) {
-            double calcResult = calc();
-            refreshOperate(String.valueOf(calcResult));
-            refreshText(showResult + "=" + result);
+            if (!operator.equals("") && !secondNum.equals("")) {
+                refreshOperate(calc().toString());
+                refreshText(showResult + "=" + result);
+                result = "";
+            }
         } else if (view.getId() == R.id.bt_sqrt) {
             double num = Double.parseDouble(firstNum);
             if (num >= 0) {
                 double sqrtResult = Math.sqrt(num);
-                refreshOperate(String.valueOf(sqrtResult));
+                BigDecimal bd = new BigDecimal(sqrtResult).setScale(6, BigDecimal.ROUND_HALF_UP);
+                refreshOperate(bd.toString());
                 refreshText(showResult + "^1/2 = " + result);
             } else {
                 refreshOperate("0");
                 refreshText("Negative numbers do not have square roots!");
             }
         } else if (view.getId() == R.id.bt_square) {
-            double squareResult = Math.pow(Double.parseDouble(firstNum), 2);
-            refreshOperate(String.valueOf(squareResult));
+            BigDecimal squareResult = new BigDecimal(firstNum).pow(2).setScale(6, BigDecimal.ROUND_HALF_UP);
+            refreshOperate(squareResult.toString());
             refreshText(showResult + "^2 = " + result);
         } else if (view.getId() == R.id.bt_reciprocal) {
             double num = Double.parseDouble(firstNum);
             if (num != 0) {
-                double reciprocalResult = 1.0 / num;
-                refreshOperate(String.valueOf(reciprocalResult));
+                BigDecimal reciprocalResult = BigDecimal.ONE.divide(new BigDecimal(firstNum), 6, BigDecimal.ROUND_HALF_UP);
+                refreshOperate(reciprocalResult.toString());
                 refreshText(showResult + "^-1 = " + result);
             } else {
                 refreshOperate("0");
@@ -102,36 +103,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 secondNum = secondNum + inputText;
             }
-            if (inputText.equals(".")) {
-                if (dot == 0) {
-                    refreshText(showResult + inputText);
-                    dot = 1;
-                }
-            }
             if (showResult.equals("0") && !inputText.equals(".")) {
                 refreshText(inputText);
             } else {
-                refreshText(showResult + inputText);
+                if (inputText.equals(".") && dot == 0) {
+                    refreshText(showResult + inputText);
+                    dot = 1;
+                } else if (!inputText.equals(".")) {
+                    refreshText(showResult + inputText);
+                }
             }
-
         }
-
     }
 
-    private double calc() {
+
+    private BigDecimal calc() {
+        BigDecimal f, s;
+        f = new BigDecimal(firstNum);
+        s = new BigDecimal(secondNum);
         switch (operator) {
             case "+":
-                return Double.parseDouble(firstNum) + Double.parseDouble(secondNum);
+                return f.add(s);
             case "-":
-                return Double.parseDouble(firstNum) - Double.parseDouble(secondNum);
+                return f.subtract(s);
             case "×":
-                return Double.parseDouble(firstNum) * Double.parseDouble(secondNum);
+                return f.multiply(s);
             default:
-                if (Double.parseDouble(secondNum) != 0) {
-                    return Double.parseDouble(firstNum) / Double.parseDouble(secondNum);
+                if (!s.equals(BigDecimal.ZERO)) {
+                    return f.divide(s, 6, BigDecimal.ROUND_HALF_UP);
                 } else {
                     refreshText("Divided by 0!");
-                    return Double.NaN;
+                    return BigDecimal.ZERO;
                 }
         }
     }// 返回计算结果
@@ -144,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void refreshOperate(String newResult) {
         result = newResult;
         firstNum = result;
-        result = "";
         secondNum = "";
         operator = "";
     } // 刷新操作数与操作符 并把运算结果给result
